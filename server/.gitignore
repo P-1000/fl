@@ -1,0 +1,9 @@
+# Ignore node modules
+node_modules/
+
+# Ignore .env file
+.env
+
+# Ignore server certificate and key files
+server.crt
+server.key
