@@ -2,6 +2,7 @@ import express from "express";
 import https from "https";
 import fs from "fs";
 import axios from "axios";
+import { User } from "./userSch.js";
 
 dotenv.config();
 const app = express();
@@ -11,6 +12,7 @@ const privateKey = fs.readFileSync("server.key", "utf8");
 const certificate = fs.readFileSync("server.cert", "utf8");
 const credentials = { key: privateKey, cert: certificate };
 import dotenv from "dotenv";
+import { connectDB } from "./db.js";
 
 const CLIENT_ID = process.env.SLACK_CLIENT_ID;
 const CLIENT_SECRET = process.env.SLACK_CLIENT_SECRET;
@@ -85,7 +87,7 @@ const getChannelId = async (accessToken, channelName) => {
 
 // Step 1: Redirect the user to Slack's OAuth page
 app.get("/auth/slack", (req, res) => {
-  const slackOAuthUrl = `https://slack.com/oauth/v2/authorize?client_id=${CLIENT_ID}&scope=channels:read,users:read&redirect_uri=${REDIRECT_URI}`;
+  const slackOAuthUrl = `https://slack.com/oauth/v2/authorize?client_id=${CLIENT_ID}&scope=chat:write,channels:read,groups:read,mpim:read,im:read&user_scope=chat:write,channels:read,groups:read,mpim:read,im:read&redirect_uri=${REDIRECT_URI}`;
   res.redirect(slackOAuthUrl);
 });
 
@@ -93,47 +95,84 @@ app.get("/auth/slack", (req, res) => {
 app.get("/slack/callback", async (req, res) => {
   const code = req.query.code;
 
+  if (!code) {
+    return res.status(400).send('Code not provided');
+  }
+
   try {
-    const response = await axios.post(
-      "https://slack.com/api/oauth.v2.access",
-      null,
-      {
-        params: {
-          client_id: CLIENT_ID,
-          client_secret: CLIENT_SECRET,
-          code,
-          redirect_uri: REDIRECT_URI,
-        },
-      }
-    );
+    // Make a POST request to Slack's OAuth endpoint to exchange the code for an access token
+    const response = await fetch('https://slack.com/api/oauth.v2.access', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        code,
+        client_id: CLIENT_ID,
+        client_secret: CLIENT_SECRET,
+        redirect_uri: REDIRECT_URI,
+      }),
+    });
 
-    console.log(response.data);
+    const data = await response.json();
 
-    const { access_token, team, authed_user } = response.data;
+    // Check if the response indicates a failure
+    if (!data.ok) {
+      throw new Error(data.error || 'Slack OAuth failed');
+    }
 
-    if (response.data.ok) {
-      const channelId = await getChannelId(access_token, "#dev");
-      if (channelId) {
-        await sendSlackMessage(
-          access_token,
-          channelId,
-          "Slack successfully connected!",
-          authed_user.id
-        );
-      } else {
-        console.error("Channel not found");
-        console.log(response.data);
-      }
-      res.send("Slack successfully connected!");
-    } else {
-      res.status(400).send("Error during Slack OAuth process");
+    if (data.ok) {
+      const appId = data.app_id;
+      const userId = data.authed_user.id;
+      const userToken = data.authed_user.access_token;
+      const accessToken = data.access_token;
+      const botUserId = data.bot_user_id;
+      const teamId = data.team.id;
+      const teamName = data.team.name;
+      console.log(data)
+      // Handle the successful OAuth flow and redirect the user
+      res.redirect(
+        `/connections?app_id=${appId}&authed_user_id=${userId}&authed_user_token=${userToken}&slack_access_token=${accessToken}&bot_user_id=${botUserId}&team_id=${teamId}&team_name=${teamName}`
+      );
     }
   } catch (error) {
-    res.status(500).send("OAuth Error");
+    console.error('OAuth Error:', error);
+    res.status(500).send('Internal Server Error');
   }
 });
 
+
+//sign up route 
+app.post("/signup", async (req, res) => {
+  const { name, email, password } = req.body;
+  try {
+    const user = await User.create({ name, email, password });
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+//login route
+app.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (user && user.password === password) {
+      res.json(user);
+    } else {
+      res.status(401).json({ error: "Invalid email or password" });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+);
+
+
+
 // Create HTTPS server
 https.createServer(credentials, app).listen(3000, () => {
+  connectDB();
   console.log("Server running on https://localhost:3000");
 });
