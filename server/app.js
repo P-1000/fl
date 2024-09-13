@@ -18,23 +18,40 @@ const CLIENT_ID = process.env.SLACK_CLIENT_ID;
 const CLIENT_SECRET = process.env.SLACK_CLIENT_SECRET;
 const REDIRECT_URI = "https://localhost:3000/slack/callback";
 
-const sendSlackMessage = async (accessToken, channelId, message, userId) => {
-  //if bot is not in the channel add it
-  const response = await axios.post(
-    "https://slack.com/api/conversations.invite",
-    {
-      channel: channelId,
-      users: userId,
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
-    }
-  );
-  console.log(response.data);
 
+
+const joinChannel = async (channelId , BOT_TOKEN) => {
+  try {
+    const response = await axios.post(
+      'https://slack.com/api/conversations.join',
+      {
+        channel: channelId, // Channel ID to join
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${BOT_TOKEN}`, // Set the bot token in the Authorization header
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    if (response.data.ok) {
+      console.log('Bot successfully joined the channel');
+      return true; // Success
+    } else {
+      console.error('Failed to join channel:', response.data.error);
+      return false; // Failed to join
+    }
+  } catch (error) {
+    console.error('Error joining channel:', error.message);
+    return false;
+  }
+};
+
+
+
+const sendSlackMessage = async (accessToken, channelId, message, userId , utok) => {
+  await joinChannel(channelId, utok);
   try {
     const response = await axios.post(
       "https://slack.com/api/chat.postMessage",
@@ -44,7 +61,7 @@ const sendSlackMessage = async (accessToken, channelId, message, userId) => {
       },
       {
         headers: {
-          Authorization: `Bearer ${accessToken}`, // Set the token in Authorization header
+          Authorization: `Bearer ${utok}`, // Set the token in Authorization header
           "Content-Type": "application/json",
         },
       }
@@ -87,7 +104,7 @@ const getChannelId = async (accessToken, channelName) => {
 
 // Step 1: Redirect the user to Slack's OAuth page
 app.get("/auth/slack", (req, res) => {
-  const slackOAuthUrl = `https://slack.com/oauth/v2/authorize?client_id=${CLIENT_ID}&scope=chat:write,channels:read,groups:read,mpim:read,im:read&user_scope=chat:write,channels:read,groups:read,mpim:read,im:read&redirect_uri=${REDIRECT_URI}`;
+  const slackOAuthUrl = `https://slack.com/oauth/v2/authorize?client_id=${CLIENT_ID}&scope=chat:write,channels:read,groups:read,mpim:read,im:read&user_scope=chat:write,channels:read,groups:read,mpim:read,im:read,channels:write.invites,groups:write.invites&redirect_uri=${REDIRECT_URI}`;
   res.redirect(slackOAuthUrl);
 });
 
@@ -130,9 +147,15 @@ app.get("/slack/callback", async (req, res) => {
       const teamId = data.team.id;
       const teamName = data.team.name;
       console.log(data)
+      //send message to slack
+      const channelId = await getChannelId(accessToken, 'dev');
+      if (channelId) {
+        await sendSlackMessage(accessToken, channelId, 'Hello from your app!', botUserId , userToken);
+      }
+
       // Handle the successful OAuth flow and redirect the user
       res.redirect(
-        `/connections?app_id=${appId}&authed_user_id=${userId}&authed_user_token=${userToken}&slack_access_token=${accessToken}&bot_user_id=${botUserId}&team_id=${teamId}&team_name=${teamName}`
+        `/?app_id=${appId}&authed_user_id=${userId}&authed_user_token=${userToken}&slack_access_token=${accessToken}&bot_user_id=${botUserId}&team_id=${teamId}&team_name=${teamName}`
       );
     }
   } catch (error) {
