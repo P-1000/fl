@@ -1,22 +1,21 @@
 import { useState } from "react";
 import "./App.css";
 import { Route, Routes } from "react-router-dom";
-import Sidebar from "../components/Sidebar";
-import Home from "../pages/Home";
-import CreateWorkflow from "../pages/CreateWorkflow";
-import AppList from "../pages/AppList";
-import NotFound from "../pages/NotFound";
+import Sidebar from "./components/common/Sidebar";
+import AppList from "./pages/AppList";
+import WP from "./components/wa/WP";
+import Flows from "./pages/Flows";
+import CreateFlow from "./pages/CreateFlow";
 function App() {
   return (
     <>
       <div className="flex">
         <Sidebar />
-        <div className="flex-grow bg-gray-100 min-h-screen">
+        <div className="flex-grow min-h-screen">
           <Routes>
-            <Route exact path="/" element={<Home />} />
-            <Route path="/create-workflow" element={<CreateWorkflow />} />
             <Route path="/apps" element={<AppList />} />
-            <Route path="*" element={<NotFound />} />
+            <Route path="/flows" element={<Flows />} />
+            <Route path="flows/create-flows" element={<CreateFlow />} />
           </Routes>
         </div>
       </div>
