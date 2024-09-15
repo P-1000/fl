@@ -14,17 +14,17 @@ export default function Sidebar() {
       to={to}
       className={({ isActive }) =>
         cn(
-          "flex items-center p-3 rounded-lg transition-colors duration-200 hover:bg-gray-300",
-          isActive && "bg-gray-300",
+          "flex items-center p-3 rounded-lg  transition-colors duration-200 hover:bg-gray-900/10",
+          isActive && "bg-black text-white",
           collapsed && "justify-center"
         )
       }
     >
       <Icon
-        className={cn("h-6 w-6 text-gray-900", collapsed ? "mr-0" : "mr-3")}
+        className={cn("h-6 w-6 ", collapsed ? "mr-0" : "mr-3")}
       />
       {!collapsed && (
-        <span className="text-sm font-medium text-gray-900">{label}</span>
+        <span className="text-sm font-medium ">{label}</span>
       )}
     </NavLink>
   );
@@ -38,7 +38,7 @@ export default function Sidebar() {
     >
       <div className="flex items-center justify-between p-4 border-b border-gray-200">
         {!collapsed && (
-          <h1 className="text-xl font-bold text-gray-900">MyApp</h1>
+          <h1 className="text-xl font-bold py-1 mb-1 text-gray-900">MyApp</h1>
         )}
         <Button variant="ghost" size="icon" onClick={toggleSidebar}>
           {collapsed ? (
@@ -49,7 +49,7 @@ export default function Sidebar() {
         </Button>
       </div>
 
-      <nav className="flex-1 px-2 py-4">
+      <nav className="flex-1 py-4">
         <NavItem icon={Home} label="Home" to="/" />
         <NavItem
           icon={PlusCircle}

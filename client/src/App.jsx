@@ -6,6 +6,7 @@ import AppList from "./pages/AppList";
 import WP from "./components/wa/WP";
 import Flows from "./pages/Flows";
 import CreateFlow from "./pages/CreateFlow";
+import Home from "./pages/Home";
 function App() {
   return (
     <>
@@ -13,6 +14,7 @@ function App() {
         <Sidebar />
         <div className="flex-grow min-h-screen">
           <Routes>
+          <Route path="/" element={<Home />} />
             <Route path="/apps" element={<AppList />} />
             <Route path="/flows" element={<Flows />} />
             <Route path="flows/create-flows" element={<CreateFlow />} />

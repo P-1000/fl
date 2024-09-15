@@ -1,137 +1,135 @@
-import React, { useState } from "react";
-import { Check, Plug } from "lucide-react"; 
-import { Button } from "@/components/ui/button"; 
-import { FaWhatsapp } from "react-icons/fa";
+import { useState, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  MessageCircle,
-  Slack,
-  FileSpreadsheet,
-  FileText,
-  Coffee,
-} from "lucide-react";
-import SendMessageToSlack from "../MsgSlack";
-import { AiOutlineSlackSquare } from "react-icons/ai";
-import { SiGooglesheets } from "react-icons/si";
-import { FaGoogleDrive } from "react-icons/fa6";
-import { SiJira } from "react-icons/si";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Bell, Zap } from "lucide-react"
 
-const initialApps = [
-  {
-    name: "WhatsApp",
-    icon: FaWhatsapp,
-    connected: false,
-    description: "Send and receive messages with ease and automate tasks.",
-  },
-  {
-    name: "Slack",
-    icon: AiOutlineSlackSquare,
-    connected: false,
-    description: "Connect and listen to Slack events, send messages, and more.",
-  },
-  {
-    name: "Google Sheets",
-    icon: SiGooglesheets,
-    connected: false,
-    description:
-      "Manage your spreadsheets and automate tasks, send messages, and more.",
-  },
-  {
-    name: "Google Drive",
-    icon: FaGoogleDrive,
-    connected: false,
-    description:
-      "Store and access your files from anywhere and automate tasks.",
-  },
-  {
-    name: "Jira",
-    icon: SiJira,
-    connected: false,
-    description: "Track your issues and projects efficiently and automate tasks.",
-  },
-];
+const apps = [
+  { id: 1, name: "Slack", category: "Communication", connected: false, logo: "/slack.png" },
+  { id: 3, name: "Gmail", category: "Email", connected: true, logo: "/gmail.png" },
+  { id: 8, name: "Google Drive", category: "File Storage", connected: true, logo: "/gdrive.png" },
+  { id: 9, name: "Jira", category: "Project Management", connected: false, logo: "/jira.png" },
+  { id: 10, name: "WhatsApp", category: "Communication", connected: true, logo: "/whatsapp.png" },
+  {id :11 , name :"Zendesk", category:"Customer Support", connected: false, logo:"/zendesk.png"}
+]
 
 export default function List() {
-  const [apps, setApps] = useState(initialApps);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [appConnections, setAppConnections] = useState(apps);
 
-  const handleConnect = (appName) => {
-    alert(`Connecting to ${appName}...`);
-    setApps((prevApps) =>
-      prevApps.map((app) =>
-        app.name === appName ? { ...app, connected: true } : app
-      )
-    );
+  const redirectToSlackAuth = () => {
+    window.location.href = "http://localhost:3000/auth/slack";
   };
 
-  const handleSlackConnect = () => {
-    window.location.href = "https://localhost:3000/slack/auth";
+  const toggleSlackConnection = () => {
+    const slackApp = appConnections.find((app) => app.name === "Slack");
+    if (slackApp.connected) {
+      // Handle disconnect (if needed)
+      setAppConnections((prevConnections) =>
+        prevConnections.map((app) =>
+          app.id === slackApp.id ? { ...app, connected: false } : app
+        )
+      );
+    } else {
+      redirectToSlackAuth();
+    }
   };
+
+  const filteredApps = appConnections.filter(
+    (app) =>
+      app.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+      (categoryFilter === "all" || app.category === categoryFilter)
+  );
+
+  const categories = ["all", ...new Set(apps.map((app) => app.category))];
 
   return (
-    <>
-      <Card className="py-10 px-10 h-screen  mx-auto bg-white text-black rounded-lg">
-        <CardHeader className="">
-          <CardTitle className="text-4xl font-semibold text-gray-900">App Connections</CardTitle>
-          <CardDescription className="text-lg text-gray-500 mt-1">
-            Manage all your app connections from one place.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ul className="space-y-4">
-            {apps.map((app) => (
-              <li
-                key={app.name}
-                className="flex items-center justify-between p-4 border
-                  bg-gray-100/10 rounded-xl
-                 hover:bg-gray-200 transition-colors duration-200"
-              >
-                <div className="flex items-center gap-4">
-                  <app.icon className="w-8 h-8 text-gray-600" />
-                  <div className="flex flex-col">
-                    <span className="text-lg font-medium text-gray-800">
-                      {app.name}
-                    </span>
-                    <span className="text-sm text-gray-500">
-                      {app.description}
-                    </span>
-                  </div>
+    <div className="flex flex-col min-h-screen">
+      <header className="border-b">
+        <div className="flex items-center justify-between px-6 py-4">
+          <div className="flex items-center space-x-4">
+            <nav className="hidden md:flex space-x-4">
+              <a className="text-sm font-medium hover:underline" href="#">
+                Dashboard
+              </a>
+              <a className="text-sm font-medium hover:underline" href="#">
+                My Flows
+              </a>
+              <a className="text-sm font-medium hover:underline" href="#">
+                Apps
+              </a>
+            </nav>
+          </div>
+          <div className="flex items-center space-x-4">
+            <Button size="icon" variant="ghost">
+              <Bell className="w-5 h-5" />
+            </Button>
+            <Avatar>
+              <AvatarImage alt="User" src="/placeholder-user.jpg" />
+              <AvatarFallback>U</AvatarFallback>
+            </Avatar>
+          </div>
+        </div>
+      </header>
+      <main className="flex-1 p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold">App Connections</h1>
+        </div>
+        <div className="flex bg-white z-50 space-x-4 mb-6">
+          <Input
+            className="max-w-sm bg-white z-50"
+            placeholder="Search apps..."
+            type="search"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filter by category" />
+            </SelectTrigger>
+            <SelectContent>
+              {categories.map((category) => (
+                <SelectItem key={category} value={category}>
+                  {category === "all" ? "All Categories" : category}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {filteredApps.map((app) => (
+            <div key={app.id} className="flex items-center justify-between p-4 bg-white rounded-lg shadow">
+              <div className="flex items-center space-x-4">
+                <img src={app.logo} alt={`${app.name} logo`} className="w-12 h-12 rounded" />
+                <div>
+                  <h2 className="font-semibold">{app.name}</h2>
+                  <p className="text-sm text-muted-foreground">{app.category}</p>
                 </div>
-
-                <div className="flex items-center space-x-4">
-                  {app.connected ? (
-                    <Button
-                      variant="outline"
-                      disabled
-                      className="flex rounded-xl items-center space-x-2 border border-gray-400 bg-white  hover:bg-gray-50/10  px-10 py-2 "
-                    >
-                      <Check className="w-6 h-6" />
-                      <span className="text-sm text-black font-medium">Connected</span>
-                    </Button>
-                  ) : (
-                    <Button
-                      variant="primary"
-                      onClick={() =>
-                        app.name === "Slack" ? handleSlackConnect() : handleConnect(app.name)
-                      }
-                      className="flex items-center space-x-2 bg-black text-white hover:bg-gray-900 px-4 py-2 rounded-xl"
-                    >
-                      <Plug className="w-5 h-5" />
-                      <span className="text-sm font-medium pr-1">Connect</span>
-                    </Button>
-                  )}
-                </div>
-              </li>
-            ))}
-          </ul>
-        </CardContent>
-      </Card>
-      {/* <SendMessageToSlack /> */}
-    </>
+              </div>
+              {app.name === "Slack" ? (
+                <Button
+                  variant={app.connected ? "outline" : "default"}
+                  onClick={toggleSlackConnection}
+                >
+                  {app.connected ? "Disconnect" : "Connect"}
+                </Button>
+              ) : (
+                <Button variant={app.connected ? "outline" : "default"}>
+                  {app.connected ? "Disconnect" : "Connect"}
+                </Button>
+              )}
+            </div>
+          ))}
+        </div>
+      </main>
+    </div>
   );
 }
