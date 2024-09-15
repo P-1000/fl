@@ -123,7 +123,7 @@ const FlowBoard = ({
           </div>
           <Button
             variant="primary"
-            className="bg-green-500 text-white mt-5 rounded"
+            className="bg-black text-white mt-5 rounded-xl"
             onClick={onTestFlow} // Trigger test flow function
           >
             Test Flow

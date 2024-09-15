@@ -1,8 +1,0 @@
-2024/09/15-07:48:35.696 f103 Reusing MANIFEST /Users/admin/CODE-/assign/moflo/server/.wwebjs_auth/session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
-2024/09/15-07:48:35.696 f103 Recovering log #1139
-2024/09/15-07:48:35.719 f103 Reusing old log /Users/admin/CODE-/assign/moflo/server/.wwebjs_auth/session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/001139.log 
-2024/09/15-07:48:37.765 16603 Level-0 table #1153: started
-2024/09/15-07:48:37.774 16603 Level-0 table #1153: 365234 bytes OK
-2024/09/15-07:48:37.784 16603 Delete type=0 #1139
-2024/09/15-07:48:37.785 16603 Manual compaction at level-0 from '\x00]\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00^\x00\x00\x00' @ 0 : 0; will stop at (end)
-2024/09/15-07:48:39.945 f103 Compacting 1@1 + 10@2 files

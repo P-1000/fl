@@ -1,3 +1,2 @@
-2024/09/15-07:48:42.731 a003 Reusing MANIFEST /Users/admin/CODE-/assign/moflo/server/.wwebjs_auth/session/Default/Local Storage/leveldb/MANIFEST-000001
-2024/09/15-07:48:42.731 a003 Recovering log #14
-2024/09/15-07:48:42.732 a003 Reusing old log /Users/admin/CODE-/assign/moflo/server/.wwebjs_auth/session/Default/Local Storage/leveldb/000014.log 
+2024/09/15-07:51:43.093 9d03 Creating DB /Users/admin/CODE-/assign/moflo/server/.wwebjs_auth/session/Default/Local Storage/leveldb since it was missing.
+2024/09/15-07:51:43.111 9d03 Reusing MANIFEST /Users/admin/CODE-/assign/moflo/server/.wwebjs_auth/session/Default/Local Storage/leveldb/MANIFEST-000001
