@@ -23,6 +23,23 @@ const flowSchema = new Schema({
       },
     },
   ],
+  status: {
+    type: String,
+    default: "inactive",
+  },
+  name: {
+    type: String,
+    required: true,
+  },
+  description: {
+    type: String,
+    default: "",
+  },
+  connectedApps: [
+    {
+      type: String,
+    },
+  ],
 });
 
 const Flow = mongoose.model("Flow", flowSchema);
